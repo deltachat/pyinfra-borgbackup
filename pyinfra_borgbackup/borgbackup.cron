@@ -1,0 +1,4 @@
+SHELL=/bin/bash
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+MAILTO=root
+{{ minute }} {{ hour }} * * * root /root/backup.sh
