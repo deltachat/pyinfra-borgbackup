@@ -1,0 +1,5 @@
+env/
+*.egg-info
+__pycache__
+pyinfra-debug.log
+pyinfra_borgbackup.egg-info/
