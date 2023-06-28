@@ -28,7 +28,7 @@ def deploy_borgbackup(host: str):
         return 
 
     # Setup SSH connection for backup job
-    # create SSH key
+    # :todo create SSH key
     files.put(
         name="create SSH config",
         src=importlib.resources.files(__package__).joinpath("dot_ssh", "config").open("rb"),
@@ -37,7 +37,7 @@ def deploy_borgbackup(host: str):
         group="root",
         mode="600",
     )
-    # add public key to backup-server's authorized_keys file
+    # :todo add public key to backup-server's authorized_keys file
         # how to run command on hetzner-backup from this pyinfra task?
         # how to get public key from the host? 
             # e.g. generate it on the local machine and copy it there
@@ -51,7 +51,7 @@ def deploy_borgbackup(host: str):
 
     borg_passphrase = parse_variable_from_env(env, "BORG_PASSPHRASE")
     borg_repo = parse_variable_from_env(env, "DEST1")
-    # borg init
+    # :todo borg init
         # how to pass borg_passphrase to borg init? environment variable? pipe? CLI option?
         # ensure that script doesn't break if borg repository already exists
 
