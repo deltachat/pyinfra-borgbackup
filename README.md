@@ -19,10 +19,10 @@ To do this, run the following commands
 
 ```
 export HOST={host}                                      # enter the name of the host you want to backup here
-ssh-keygen -q -t ed25519 -f $HOST-backup -C $HOST-backup -N ""
-scp hetzner-backup:.ssh/authorized_keys hetzner-backup_authorized_keys
-echo 'command="borg serve --restrict-to-path /backups/'$HOST'/",restrict' $(cat $HOST-backup.pub) >> hetzner-backup_authorized_keys
-scp hetzner-backup_authorized_keys hetzner-backup:.ssh/authorized_keys
+ssh-keygen -q -t ed25519 -f /tmp/$HOST-backup -C $HOST-backup -N ""
+scp hetzner-backup:.ssh/authorized_keys /tmp/hetzner-backup_authorized_keys
+echo 'command="borg serve --restrict-to-path /home/backups/'$HOST'/",restrict' $(cat /tmp/$HOST-backup.pub) >> /tmp/hetzner-backup_authorized_keys
+scp /tmp/hetzner-backup_authorized_keys hetzner-backup:.ssh/authorized_keys
 ```
 
 Now you need to generate a passphrase for the borg repository
@@ -33,25 +33,25 @@ Then we need to extend this pass entry.
 Use `pass edit delta/{host}/backup.env` to edit the entry.
 You should leave the generated password intact,
 but write `BORG_PASSPHRASE=` in front of it.
-Then you should add some additional variables,
+Then you should add some additional variables
+(at least `DEST1`),
 so that it looks similar to this in the end:
 
 ```bash
 BORG_PASSPHRASE=g3n3r4t3dp455phr4s3
-BORG_RSH='ssh -F /root/.ssh/config -o "StrictHostKeyChecking=no"'
-DEST1='hetzner-backup/backups/{host}'
-HALT_SERVICES='unattended-upgrades docker libvirtd postfix dovecot nginx'
-HALT_CONTAINERS='mailadm app mailcow_dockerized-dovecot_1 mailcow_dockerized-postfix_1'
-EXCLUDES='-e "*.cache/"'
-SKIP_CHECK='false'
+DEST1=hetzner-backup:backups/{host}
+SKIP_CHECK=false
 ```
 
 Then you can add this module to your pyinfra deploy.py script like this:
 
 ```python
+from pyinfra import host
+from pyinfra.facts.files import File
 from pyinfra_borgbackup import deploy_borgbackup
 
-deploy_borgbackup(host="host")
+borg_initialized = host.get_fact(File, "/root/.ssh/backupkey")
+deploy_borgbackup("host", borg_initialized)
 ```
 
 After it has been deployed,

@@ -4,14 +4,14 @@ set -exuo pipefail
 # setup env
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $DIR
-. /root/backup.env
+export $(xargs < /root/backup.env)
 
 # check if these variables have been set
 echo "$BORG_PASSPHRASE" > /dev/null
-echo "$BORG_RSH" > /dev/null
-echo "$EXCLUDES" > /dev/null
 echo "$DEST1" > /dev/null
 : "${SKIP_CHECK:='false'}"
+
+export BORG_RSH='ssh -F /root/.ssh/config -o "StrictHostKeyChecking=no"'
 
 # don't fail just because the pod is not running
 set +e
@@ -27,16 +27,9 @@ else
 fi
 wait
 
-if [ -n "${HALT_CONTAINERS-}" ]; then
-  docker stop ${HALT_CONTAINERS}
-fi
-if [ -n "${HALT_SERVICES-}" ]; then
-  # :todo how to stop multiple services from one variable?
-  systemctl stop ${HALT_SERVICES}
-fi
 borg create --stats --compression lzma ${DEST1}::'backup{now:%Y-%m-%d-%H}' \
         /                            \
-        ${EXCLUDES}                  \
+        --exclude *.cache/           \
         --exclude /dev               \
         --exclude /proc              \
         --exclude /sys               \
@@ -51,7 +44,7 @@ if [ -n "${DEST2-}" ]; then
   # Note: not yet supported by pyinfra deploy.
   borg create --stats --compression lzma ${DEST2}::'backup{now:%Y-%m-%d-%H}' \
         /                            \
-        ${EXCLUDES}                  \
+        --exclude *.cache/           \
         --exclude /dev               \
         --exclude /proc              \
         --exclude /sys               \
@@ -63,12 +56,6 @@ if [ -n "${DEST2-}" ]; then
         --exclude /var/lib/lxcfs &
 fi
 wait
-if [ -n "${HALT_SERVICES-}" ]; then
-  systemctl start ${HALT_SERVICES}
-fi
-if [ -n "${HALT_CONTAINERS-}" ]; then
-  docker start ${HALT_CONTAINERS}
-fi
 
 set -e
 borg prune --keep-daily=7 --keep-weekly=4 ${DEST1}

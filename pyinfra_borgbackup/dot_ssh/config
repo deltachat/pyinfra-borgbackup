@@ -2,5 +2,5 @@ Host hetzner-backup
 	Port 23
 	Hostname u229552.your-storagebox.de
 	User u229552
-	IdentityFile /home/user/.ssh/id_ed25519
+	IdentityFile /root/.ssh/backupkey
 
