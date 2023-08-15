@@ -1,4 +1,12 @@
 #!/bin/bash
+
+function start_services (
+  # start the services/containers which write data again
+  if [ -f /root/backup-pre.py ]; then python3 /root/backup-pre.py start; fi
+)
+
+trap "start_services" EXIT
+
 set -exuo pipefail
 
 # setup env
@@ -26,6 +34,9 @@ else
   fi
 fi
 wait
+
+# stop services/containers which write data
+if [ -f /root/backup-pre.py ]; then python3 /root/backup-pre.py stop; fi
 
 borg create --stats --compression lzma ${DEST1}::'backup{now:%Y-%m-%d-%H}' \
         /                            \
