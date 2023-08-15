@@ -68,6 +68,8 @@ if [ -n "${DEST2-}" ]; then
 fi
 wait
 
+start_services
+
 set -e
 borg prune --keep-daily=7 --keep-weekly=4 ${DEST1}
 if [ -n "${DEST2-}" ]; then
