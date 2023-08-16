@@ -62,6 +62,10 @@ and directly spot possible mistakes.
 
 ### Stop Services During the Backup
 
+During backup,
+it is recommended to halt services
+which write data to disk,
+so the backups don't get inconsistent.
 To stop systemd services
 or docker containers
 during the `borg create` step
