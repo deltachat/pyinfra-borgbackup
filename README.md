@@ -60,6 +60,41 @@ and run the script manually at least once,
 to create an initial backup
 and directly spot possible mistakes.
 
+### Stop Services During the Backup
+
+To stop systemd services
+or docker containers
+during the `borg create` step
+of the `backup.sh` script,
+you can create a custom python script.
+
+The `backup.sh` script will try to run `/root/backup-pre.py`,
+if the file exists;
+it calls it with the argument `stop` before `borg create`
+and with the argument `start` in the end
+(also if the backup fails for some reason).
+
+You can use the `backup-pre.py` script from this repository
+as a template to adjust it for the specific server.
+You need to upload the script to `/root/backup-pre.py`
+in your deploy.py script,
+e.g. directly before the `deploy_borgbackup()` call:
+
+```
+from pyinfra import host
+from pyinfra.facts.files import File
+from pyinfra_borgbackup import deploy_borgbackup
+
+borg_initialized = host.get_fact(File, "/root/.ssh/backupkey")
+files.rsync(
+    name="Upload backup-pre.py",
+    src="files/root/backup-pre.py",
+    dest="/root/",
+)
+deploy_borgbackup("bomba", borg_initialized)
+```
+
+
 <!--
 It can also be used to deploy borgbackup with an ad-hoc command like this:
 ```
