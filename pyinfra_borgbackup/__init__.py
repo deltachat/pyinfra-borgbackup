@@ -25,7 +25,7 @@ def deploy_borgbackup(host: str, borg_initialized: bool):
         store = passpy.Store()
         env = store.get_key(pass_path)
     except KeyError:
-        readme_url = "https://github.com/deltachat/sysadmin-pyinfra/tree/master/lib/pyinfra_borgbackup/README.md"
+        readme_url = "https://github.com/deltachat/pyinfra-borgbackup/"
         pyinfra.warn(f"Please add the secrets to {pass_path}, see {readme_url} on how to do it.")
         return 
 
