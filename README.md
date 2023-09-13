@@ -6,6 +6,13 @@ and a cron job which executes it nightly.
 Admins need to generate a passphrase
 and store it in our [pass repository](https://git.0x90.space/delta/pass).
 
+Right now,
+`gpg2` is required
+to run a deployment with this module.
+You can install it on Ubuntu
+with `sudo apt install gnupg2`.
+This is hopefully not necesary in the future.
+
 ## Usage
 
 To backup a host
