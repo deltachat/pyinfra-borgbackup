@@ -12,7 +12,10 @@ parser.add_argument("command", type=str, default="start", help="Whether to 'stop
 args = parser.parse_args()
 
 for user in services:
-    returncode = os.system(f"su -l {user} -c 'systemctl --user {args.command} {services[user]}'")
+    if user == "root":
+        returncode = os.system(f"systemctl {args.command} {services[user]}")
+    else:
+        returncode = os.system(f"su -l {user} -c 'systemctl --user {args.command} {services[user]}'")
     if returncode != 0:
         print(f"WARNING: Failed to {args.command} {services[user]} as {user} user")
 
