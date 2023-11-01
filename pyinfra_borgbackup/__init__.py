@@ -39,14 +39,17 @@ def deploy_borgbackup(host: str, passphrase: str, borg_repo: str, borg_initializ
             group="root",
             mode="600",
         )
-    files.put(
-        name="create SSH config",
-        src=importlib.resources.files(__package__).joinpath("dot_ssh", "config").open("rb"),
-        dest="/root/.ssh/config",
-        user="root",
-        group="root",
-        mode="600",
-    )
+    # Only upload SSH config if it's using the delta backup server;
+    # Otherwise leave it to users to upload it before
+    if borg_repo.startswith("hetzner-backup:"):
+        files.put(
+            name="create SSH config",
+            src=importlib.resources.files(__package__).joinpath("dot_ssh", "config").open("rb"),
+            dest="/root/.ssh/config",
+            user="root",
+            group="root",
+            mode="600",
+        )
 
     apt.packages(
         name="Install borgbackup",

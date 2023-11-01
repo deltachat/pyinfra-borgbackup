@@ -50,6 +50,30 @@ and run `/root/backup.sh` manually at least once,
 to create an initial backup
 and directly spot possible mistakes.
 
+### Use Your Own Backup Server
+
+If you are not part of the deltachat admin team,
+you can not use the default backup server of this module.
+In this case, you need to upload the `/root/.ssh/config` file separately,
+e.g. in your deploy.py file.
+
+You can take a look at our [`/root/.ssh/config`](https://github.com/deltachat/pyinfra-borgbackup/blob/main/pyinfra_borgbackup/dot_ssh/config) file
+and adjust it to your needs.
+To upload it during your deploy.py execution,
+add somewhere *above* the `deploy_borgbackup()` function call
+in your deploy.py file:
+
+```
+files.put(
+    name="create SSH config",
+    src="path/to/the/local/ssh/config",
+    dest="/root/.ssh/config",
+    user="root",
+    group="root",
+    mode="600",
+)
+```
+
 ### Stop Services During the Backup
 
 During backup,
