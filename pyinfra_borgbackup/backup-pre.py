@@ -5,6 +5,7 @@ import os
 
 services = {
     "isolationbot": "isolationbot.service",
+    "root": "docker.service",
 }
 
 parser = argparse.ArgumentParser()
