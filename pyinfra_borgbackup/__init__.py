@@ -18,6 +18,8 @@ def deploy_borgbackup(
     :param host: the name of the host which you want to backup, e.g. page.
     :param passphrase: the passphrase for the borg repository
     :param borg_repo: the address of the borg repository
+    :param borg_initialized: whether borg repository was already initialized
+    :param skip_check: whether to skip `borg check` during ./backup.sh runs
     """
 
     secrets = [
