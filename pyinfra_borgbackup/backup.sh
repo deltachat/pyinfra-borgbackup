@@ -1,9 +1,9 @@
 #!/bin/bash
 
-function start_services (
+function start_services {
   # start the services/containers which write data again
   if [ -f /root/backup-pre.py ]; then python3 /root/backup-pre.py start; fi
-)
+}
 
 trap "start_services" EXIT
 
