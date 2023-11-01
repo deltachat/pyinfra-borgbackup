@@ -6,7 +6,13 @@ from io import StringIO
 from pyinfra.operations import apt, files, server
 
 
-def deploy_borgbackup(host: str, passphrase: str, borg_repo: str, borg_initialized: bool, skip_check: bool = False):
+def deploy_borgbackup(
+    host: str,
+    passphrase: str,
+    borg_repo: str,
+    borg_initialized: bool,
+    skip_check: bool = False,
+):
     """Deploy borgbackup.
 
     :param host: the name of the host which you want to backup, e.g. page.
@@ -44,7 +50,9 @@ def deploy_borgbackup(host: str, passphrase: str, borg_repo: str, borg_initializ
     if borg_repo.startswith("hetzner-backup:"):
         files.put(
             name="create SSH config",
-            src=importlib.resources.files(__package__).joinpath("dot_ssh", "config").open("rb"),
+            src=importlib.resources.files(__package__)
+            .joinpath("dot_ssh", "config")
+            .open("rb"),
             dest="/root/.ssh/config",
             user="root",
             group="root",
@@ -69,7 +77,9 @@ def deploy_borgbackup(host: str, passphrase: str, borg_repo: str, borg_initializ
     if not borg_initialized:
         server.shell(
             name="Initialize borg repository",
-            commands=["export $(xargs < /root/backup.env) && export BORG_RSH='ssh -F /root/.ssh/config -o \"StrictHostKeyChecking=no\"' && borg init --encryption=repokey $DEST1"],
+            commands=[
+                "export $(xargs < /root/backup.env) && export BORG_RSH='ssh -F /root/.ssh/config -o \"StrictHostKeyChecking=no\"' && borg init --encryption=repokey $DEST1"
+            ],
         )
 
     files.template(
@@ -82,4 +92,3 @@ def deploy_borgbackup(host: str, passphrase: str, borg_repo: str, borg_initializ
         minute=str(random.randint(0, 60)),
         hour=str(random.randint(0, 4)),
     )
-
