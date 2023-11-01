@@ -6,13 +6,6 @@ and a cron job which executes it nightly.
 Admins need to generate a passphrase
 and store it in our [pass repository](https://git.0x90.space/delta/pass).
 
-Right now,
-`gpg2` is required
-to run a deployment with this module.
-You can install it on Ubuntu
-with `sudo apt install gnupg2`.
-This is hopefully not necesary in the future.
-
 ## Usage
 
 To backup a host
@@ -33,22 +26,8 @@ scp /tmp/hetzner-backup_authorized_keys hetzner-backup:.ssh/authorized_keys
 ```
 
 Now you need to generate a passphrase for the borg repository
-with `pass generate -n delta/{host}/backup.env`.
+with `pass generate -n delta/{host}/borg-passphrase`.
 This creates an alphanumeric passphrase for the repository.
-
-Then we need to extend this pass entry.
-Use `pass edit delta/{host}/backup.env` to edit the entry.
-You should leave the generated password intact,
-but write `BORG_PASSPHRASE=` in front of it.
-Then you should add some additional variables
-(at least `DEST1`),
-so that it looks similar to this in the end:
-
-```bash
-BORG_PASSPHRASE=g3n3r4t3dp455phr4s3
-DEST1=hetzner-backup:backups/{host}
-SKIP_CHECK=false
-```
 
 Then you can add this module to your pyinfra deploy.py script like this:
 
@@ -56,14 +35,18 @@ Then you can add this module to your pyinfra deploy.py script like this:
 from pyinfra import host
 from pyinfra.facts.files import File
 from pyinfra_borgbackup import deploy_borgbackup
+import passpy
 
+host = "host"
+borg_repo = f"hetzner-backup:backups/{host}"
+borg_passphrase = passpy.Store().get_key(f"delta/{host}/borg-passphrase")
 borg_initialized = host.get_fact(File, "/root/.ssh/backupkey")
-deploy_borgbackup("host", borg_initialized)
+deploy_borgbackup(host, borg_passphrase, borg_repo, borg_initialized)
 ```
 
 After it has been deployed,
 you should login to your host via SSH
-and run the script manually at least once,
+and run `/root/backup.sh` manually at least once,
 to create an initial backup
 and directly spot possible mistakes.
 
