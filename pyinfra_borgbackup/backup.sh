@@ -72,7 +72,9 @@ start_services
 
 set -e
 borg prune --keep-daily=7 --keep-weekly=4 ${DEST1}
+borg compact ${DEST1}
 if [ -n "${DEST2-}" ]; then
   borg prune --keep-daily=7 --keep-weekly=4 ${DEST2}
+  borg compact ${DEST2}
 fi
 
