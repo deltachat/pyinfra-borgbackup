@@ -35,13 +35,12 @@ Then you can add this module to your pyinfra deploy.py script like this:
 from pyinfra import host
 from pyinfra.facts.files import File
 from pyinfra_borgbackup import deploy_borgbackup
-import passpy
 
-host = "host"
-borg_repo = f"hetzner-backup:backups/{host}"
-borg_passphrase = passpy.Store().get_key(f"delta/{host}/borg-passphrase")
+host_name = "host"
+borg_repo = f"hetzner-backup:backups/{host_name}"
+borg_passphrase = "s3cr3t"
 borg_initialized = host.get_fact(File, "/root/.ssh/backupkey")
-deploy_borgbackup(host, borg_passphrase, borg_repo, borg_initialized)
+deploy_borgbackup(host_name, borg_passphrase, borg_repo, borg_initialized)
 ```
 
 After it has been deployed,
