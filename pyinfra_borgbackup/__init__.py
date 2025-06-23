@@ -91,6 +91,6 @@ def deploy_borgbackup(
         user="root",
         group="root",
         mode="644",
-        minute=str(random.randint(0, 60)),
+        minute=str(random.randint(0, 59)),
         hour=str(random.randint(0, 4)),
     )
