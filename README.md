@@ -116,7 +116,11 @@ deploy_borgbackup("bomba", borg_initialized)
 If you pass a prometheus path to `deploy_borgbackup` like this:
 
 ```
-deploy_borgbackup("bomba", borg_initialized, prometheus="/var/lib/node_exporter/textfile_collector/borgbackup_finished.prom")
+deploy_borgbackup(
+    "bomba",
+    borg_initialized,
+    prometheus_file="/var/lib/node_exporter/textfile_collector/borgbackup_finished.prom",
+)
 ```
 
 then the backup script will track in this file whether it finished successfully:
