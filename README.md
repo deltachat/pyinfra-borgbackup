@@ -111,10 +111,20 @@ files.rsync(
 deploy_borgbackup("bomba", borg_initialized)
 ```
 
+### Enable Prometheus Monitoring For Borgbackup
 
-<!--
-It can also be used to deploy borgbackup with an ad-hoc command like this:
+If you pass a prometheus path to `deploy_borgbackup` like this:
+
 ```
-pyinfra --ssh-user root -- hostname pyinfra_borgbackup.deploy_borgbackup
+deploy_borgbackup("bomba", borg_initialized, prometheus="/var/lib/node_exporter/textfile_collector/borgbackup_finished.prom")
 ```
--->
+
+then the backup script will track in this file whether it finished successfully:
+
+```
+borgbackup_finished 1
+```
+
+You should configure an alert in your monitoring system
+that notifies you if the backup job didn't finish for more than 1 day.
+

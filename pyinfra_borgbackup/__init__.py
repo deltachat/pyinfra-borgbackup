@@ -12,6 +12,7 @@ def deploy_borgbackup(
     borg_repo: str,
     borg_initialized: bool,
     skip_check: bool = False,
+    prometheus_file: bool = False,
 ):
     """Deploy borgbackup.
 
@@ -20,6 +21,8 @@ def deploy_borgbackup(
     :param borg_repo: the address of the borg repository
     :param borg_initialized: whether borg repository was already initialized
     :param skip_check: whether to skip `borg check` during ./backup.sh runs
+    :param prometheus_file: file to write prometheus success indicators to, e.g.
+        /var/lib/node_exporter/textfile_collector/borgbackup_finished.prom
     """
 
     secrets = [
@@ -67,13 +70,14 @@ def deploy_borgbackup(
     )
     # :todo consider requiring a specific borg version?
 
-    files.put(
+    files.template(
         name="Create backup.sh script",
-        src=importlib.resources.files(__package__).joinpath("backup.sh").open("rb"),
+        src=importlib.resources.files(__package__).joinpath("backup.sh.j2").open("rb"),
         dest="/root/backup.sh",
         user="root",
         group="root",
         mode="700",
+        prometheus_file=prometheus_file,
     )
 
     if not borg_initialized:

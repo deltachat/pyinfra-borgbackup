@@ -7,6 +7,10 @@ function start_services {
 
 trap "start_services" EXIT
 
+{% if prometheus_file != false %}
+echo "borgbackup_finished 0" > {{ prometheus_file }} || true
+{%- endif %}
+
 set -exuo pipefail
 
 # setup env
@@ -68,6 +72,9 @@ if [ -n "${DEST2-}" ]; then
 fi
 wait
 
+{% if prometheus_file != false %}
+echo "borgbackup_finished 1" > {{ prometheus_file }} || true
+{%- endif %}
 start_services
 
 set -e
