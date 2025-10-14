@@ -72,7 +72,7 @@ def deploy_borgbackup(
 
     files.template(
         name="Create backup.sh script",
-        src=importlib.resources.files(__package__).joinpath("backup.sh.j2").open("rb"),
+        src=importlib.resources.files(__package__) / "backup.sh.j2",
         dest="/root/backup.sh",
         user="root",
         group="root",
