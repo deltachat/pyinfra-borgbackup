@@ -102,13 +102,13 @@ from pyinfra import host
 from pyinfra.facts.files import File
 from pyinfra_borgbackup import deploy_borgbackup
 
-borg_initialized = host.get_fact(File, "/root/.ssh/backupkey")
+[...]
 files.rsync(
     name="Upload backup-pre.py",
     src="files/root/backup-pre.py",
     dest="/root/",
 )
-deploy_borgbackup("bomba", borg_initialized)
+deploy_borgbackup("bomba", borg_passphrase, borg_repo, borg_initialized)
 ```
 
 ### Enable Prometheus Monitoring For Borgbackup
@@ -117,8 +117,7 @@ If you pass a prometheus path to `deploy_borgbackup` like this:
 
 ```
 deploy_borgbackup(
-    "bomba",
-    borg_initialized,
+    [...]
     prometheus_file="/var/lib/node_exporter/textfile_collector/borgbackup_finished.prom",
 )
 ```
