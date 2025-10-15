@@ -122,12 +122,31 @@ deploy_borgbackup(
 )
 ```
 
-then the backup script will track in this file whether it finished successfully:
+then the backup script will track in this file when it finished successfully,
+in "seconds since Jan 1 1970":
 
 ```
-borgbackup_finished 1
+borgbackup_last_completed 1760518220
 ```
 
-You should configure an alert in your monitoring system
-that notifies you if the backup job didn't finish for more than 1 day.
+#### Configure a Grafana Alert
+
+You can use a tool like Grafana to get alerted
+when the backup doesn't finish for 2 days.
+For example with the following Grafana alert rule:
+
+- 1. Enter alert rule name: `backup failed`
+- 2. Define query and alert condition
+    - A: `prometheus`, Select "code" in the top right, Metrics browser: `time() - borgbackup_last_completed(instance="bomba:9100")`
+    - B you can leave as it is
+    - C (Threshold): Input `A` `Is Below` `172800` (2 days in seconds)
+- 3. Set evaluation behavior
+    - Folder: `bomba`
+    - Evaluation group: `bomba`
+    - Pending period: `10m`
+- 4. You can leave as it is
+- 5. Add annotations
+    - Summary: `The last completed backup run has been over two days ago.`
+
+Click "Save rule and exit" to confirm.
 
