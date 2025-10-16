@@ -38,7 +38,7 @@ wait
 # stop services/containers which write data
 if [ -f /root/backup-pre.py ]; then python3 /root/backup-pre.py stop; fi
 
-borg create --stats --compression lzma ${DEST1}::'backup{now:%Y-%m-%d-%H}' \
+borg create --stats --compression lzma ${DEST1}::'backup{now:%Y-%m-%d-%H}' {{ borg_args }} \
         /                            \
         --exclude *.cache/           \
         --exclude /dev               \
@@ -53,7 +53,7 @@ borg create --stats --compression lzma ${DEST1}::'backup{now:%Y-%m-%d-%H}' \
 if [ -n "${DEST2-}" ]; then
   # If there is a second backup destination, create a backup there.
   # Note: not yet supported by pyinfra deploy.
-  borg create --stats --compression lzma ${DEST2}::'backup{now:%Y-%m-%d-%H}' \
+  borg create --stats --compression lzma ${DEST2}::'backup{now:%Y-%m-%d-%H}' {{ borg_args }} \
         /                            \
         --exclude *.cache/           \
         --exclude /dev               \
