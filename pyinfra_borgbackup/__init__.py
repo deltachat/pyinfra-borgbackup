@@ -11,6 +11,7 @@ def deploy_borgbackup(
     passphrase: str,
     borg_repo: str,
     borg_initialized: bool,
+    borg_args: str = "",
     skip_check: bool = False,
     prometheus_file: bool = False,
 ):
@@ -20,6 +21,7 @@ def deploy_borgbackup(
     :param passphrase: the passphrase for the borg repository
     :param borg_repo: the address of the borg repository
     :param borg_initialized: whether borg repository was already initialized
+    :param borg_args: CLI arguments passed to borg create
     :param skip_check: whether to skip `borg check` during ./backup.sh runs
     :param prometheus_file: file to write prometheus success indicators to, e.g.
         /var/lib/node_exporter/textfile_collector/borgbackup_finished.prom
@@ -77,6 +79,7 @@ def deploy_borgbackup(
         user="root",
         group="root",
         mode="700",
+        borg_args=borg_args,
         prometheus_file=prometheus_file,
     )
 
