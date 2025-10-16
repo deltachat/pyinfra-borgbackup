@@ -137,7 +137,7 @@ For example with the following Grafana alert rule:
 
 - 1. Enter alert rule name: `backup failed`
 - 2. Define query and alert condition
-    - A: `prometheus`, Select "code" in the top right, Metrics browser: `time() - borgbackup_last_completed(instance="bomba:9100")`
+    - A: `prometheus`, Select "code" in the top right, Metrics browser: `time() - borgbackup_last_completed{instance="bomba:9100"}`
     - B you can leave as it is
     - C (Threshold): Input `A` `Is Below` `172800` (2 days in seconds)
 - 3. Set evaluation behavior
