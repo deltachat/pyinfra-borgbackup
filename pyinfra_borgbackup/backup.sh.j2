@@ -47,6 +47,7 @@ borg create --stats --compression lzma ${DEST1}::'backup{now:%Y-%m-%d-%H}' {{ bo
         --exclude /run               \
         --exclude /lost+found        \
         --exclude /mnt               \
+        --exclude /tmp               \
         --exclude /media             \
         --exclude /var/lib/lxcfs &
 if [ -n "${DEST2-}" ]; then
@@ -62,6 +63,7 @@ if [ -n "${DEST2-}" ]; then
         --exclude /run               \
         --exclude /lost+found        \
         --exclude /mnt               \
+        --exclude /tmp               \
         --exclude /media             \
         --exclude /var/lib/lxcfs &
 fi
