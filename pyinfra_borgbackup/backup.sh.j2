@@ -69,7 +69,7 @@ if [ -n "${DEST2-}" ]; then
 fi
 wait
 
-{% if prometheus_file != false %}
+{% if prometheus_file is defined %}
 echo "borgbackup_last_completed $(date +%s)" > {{ prometheus_file }}
 {%- endif %}
 start_services

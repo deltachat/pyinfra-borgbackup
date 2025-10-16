@@ -13,7 +13,7 @@ def deploy_borgbackup(
     borg_initialized: bool,
     borg_args: str = "/",
     skip_check: bool = False,
-    prometheus_file: bool = False,
+    prometheus_file: bool = None,
 ):
     """Deploy borgbackup.
 
