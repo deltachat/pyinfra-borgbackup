@@ -11,7 +11,7 @@ def deploy_borgbackup(
     passphrase: str,
     borg_repo: str,
     borg_initialized: bool,
-    borg_args: str = "",
+    borg_args: str = "/",
     skip_check: bool = False,
     prometheus_file: bool = False,
 ):
