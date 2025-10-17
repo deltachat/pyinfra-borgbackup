@@ -1,5 +1,4 @@
 import importlib.resources
-import pyinfra
 import random
 from io import StringIO
 
@@ -13,7 +12,7 @@ def deploy_borgbackup(
     borg_initialized: bool,
     borg_args: str = "/",
     skip_check: bool = False,
-    prometheus_file: bool = None,
+    prometheus_file: str | None = None,
 ):
     """Deploy borgbackup.
 
