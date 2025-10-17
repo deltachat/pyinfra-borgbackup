@@ -54,7 +54,6 @@ if [ -n "${DEST2-}" ]; then
   # If there is a second backup destination, create a backup there.
   # Note: not yet supported by pyinfra deploy.
   borg create --stats --compression lzma ${DEST2}::'backup{now:%Y-%m-%d-%H}' {{ borg_args }} \
-        /                            \
         --exclude *.cache/           \
         --exclude /dev               \
         --exclude /proc              \
