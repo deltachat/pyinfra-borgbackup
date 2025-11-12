@@ -2,7 +2,7 @@ import importlib.resources
 import random
 from io import StringIO
 
-from pyinfra.operations import apt, files, server
+from pyinfra.operations import apt, files, server, systemd
 
 
 def deploy_borgbackup(
@@ -90,13 +90,36 @@ def deploy_borgbackup(
             ],
         )
 
-    files.template(
-        name="Create cron job for backup script",
-        src=importlib.resources.files(__package__).joinpath("borgbackup.cron"),
-        dest="/etc/cron.d/borgbackup",
-        user="root",
-        group="root",
+    files.file(
+        name="Remove old backup cronjob, replaced by systemd timer",
+        path="/etc/cron.d/borgbackup",
+        present=False,
+    )
+
+    reconcile_service_file = files.put(
+        src=importlib.resources.files(__package__).joinpath("borgbackup.service"),
+        dest="/etc/systemd/system/borgbackup.service",
         mode="644",
-        minute=str(random.randint(0, 59)),
-        hour=str(random.randint(0, 4)),
+    )
+    systemd.service(
+        name="Setup borgbackup service",
+        service="borgbackup.service",
+        running=False,
+        enabled=False,
+        daemon_reload=reconcile_service_file.changed,
+    )
+
+    reconcile_timer_file = files.put(
+        src=importlib.resources.files(__package__).joinpath("borgbackup.timer.j2"),
+        dest="/etc/systemd/system/borgbackup.timer",
+        mode="644",
+        minute = str(random.randint(0, 59)),
+        hour = str(random.randint(0, 4)),
+    )
+    systemd.service(
+        name="Setup borgbackup timer",
+        service="borgbackup.timer",
+        running=True,
+        enabled=True,
+        daemon_reload=reconcile_timer_file.changed,
     )
