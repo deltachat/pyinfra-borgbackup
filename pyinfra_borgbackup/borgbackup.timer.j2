@@ -1,0 +1,8 @@
+[Unit]
+Description=Run nightly backups
+
+[Timer]
+OnCalendar=*-*-* {{ hour }}:{{ minute }}:00
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=Run nightly backups
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/root/backup.sh
+
+
