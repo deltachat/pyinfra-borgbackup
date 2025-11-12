@@ -109,7 +109,7 @@ def deploy_borgbackup(
         daemon_reload=reconcile_service_file.changed,
     )
 
-    reconcile_timer_file = files.put(
+    reconcile_timer_file = files.template(
         src=importlib.resources.files(__package__).joinpath("borgbackup.timer.j2"),
         dest="/etc/systemd/system/borgbackup.timer",
         mode="644",
