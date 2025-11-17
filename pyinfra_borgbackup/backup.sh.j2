@@ -43,6 +43,7 @@ borg create --stats --compression lzma ${DEST1}::'backup{now:%Y-%m-%d-%H}' {{ bo
         --exclude /proc              \
         --exclude /sys               \
         --exclude /var/run           \
+        --exclude /var/log           \
         --exclude /run               \
         --exclude /lost+found        \
         --exclude /mnt               \
