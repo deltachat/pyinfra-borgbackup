@@ -21,9 +21,6 @@ echo "$DEST1" > /dev/null
 
 export BORG_RSH='ssh -F /root/.ssh/config -o "StrictHostKeyChecking=no"'
 
-# don't fail just because the pod is not running
-set +e
-
 # check if variable exists: https://stackoverflow.com/a/11369388
 if [ "$SKIP_CHECK" = "true" ]; then
   echo "skipping borg check."
@@ -49,33 +46,18 @@ borg create --stats --compression lzma ${DEST1}::'backup{now:%Y-%m-%d-%H}' {{ bo
         --exclude /mnt               \
         --exclude /tmp               \
         --exclude /media             \
-        --exclude /var/lib/lxcfs && FINISHED=true &
-if [ -n "${DEST2-}" ]; then
-  # If there is a second backup destination, create a backup there.
-  # Note: not yet supported by pyinfra deploy.
-  borg create --stats --compression lzma ${DEST2}::'backup{now:%Y-%m-%d-%H}' {{ borg_args }} \
-        --exclude *.cache/           \
-        --exclude /dev               \
-        --exclude /proc              \
-        --exclude /sys               \
-        --exclude /var/run           \
-        --exclude /run               \
-        --exclude /lost+found        \
-        --exclude /mnt               \
-        --exclude /tmp               \
-        --exclude /media             \
-        --exclude /var/lib/lxcfs && FINISHED=true &
-fi
-wait
+        --exclude /var/lib/lxcfs
+exit_code=$?
 
 {% if prometheus_file is defined %}
-if [ "$FINISHED" = "true" ]; then
+if [ $exit_code = 0 ]; then
   echo "borgbackup_last_completed $(date +%s)" > {{ prometheus_file }}
+else
+  echo "borg failed with exit code $exit_code"
 fi
 {%- endif %}
 start_services
 
-set -e
 borg prune --keep-daily=7 --keep-weekly=4 ${DEST1}
 borg compact ${DEST1}
 if [ -n "${DEST2-}" ]; then
