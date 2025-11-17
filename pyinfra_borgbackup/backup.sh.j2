@@ -2,7 +2,9 @@
 
 function start_services {
   # start the services/containers which write data again
+  rv=$?
   if [ -f /root/backup-pre.py ]; then python3 /root/backup-pre.py start; fi
+  exit $(( $rv + $? ))
 }
 
 trap "start_services" EXIT
@@ -47,14 +49,9 @@ borg create --stats --compression lzma ${DEST1}::'backup{now:%Y-%m-%d-%H}' {{ bo
         --exclude /tmp               \
         --exclude /media             \
         --exclude /var/lib/lxcfs
-exit_code=$?
 
 {% if prometheus_file is defined %}
-if [ $exit_code = 0 ]; then
-  echo "borgbackup_last_completed $(date +%s)" > {{ prometheus_file }}
-else
-  echo "borg failed with exit code $exit_code"
-fi
+echo "borgbackup_last_completed $(date +%s)" > {{ prometheus_file }}
 {%- endif %}
 start_services
 
