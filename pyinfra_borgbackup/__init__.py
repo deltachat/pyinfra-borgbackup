@@ -102,7 +102,7 @@ def deploy_borgbackup(
         present=False,
     )
 
-    reconcile_service_file = files.put(
+    backup_service_file = files.put(
         src=importlib.resources.files(__package__).joinpath("borgbackup.service"),
         dest="/etc/systemd/system/borgbackup.service",
         mode="644",
@@ -112,10 +112,10 @@ def deploy_borgbackup(
         service="borgbackup.service",
         running=False,
         enabled=False,
-        daemon_reload=reconcile_service_file.changed,
+        daemon_reload=backup_service_file.changed,
     )
 
-    reconcile_timer_file = files.template(
+    backup_timer_file = files.template(
         src=importlib.resources.files(__package__).joinpath("borgbackup.timer.j2"),
         dest="/etc/systemd/system/borgbackup.timer",
         mode="644",
@@ -127,5 +127,5 @@ def deploy_borgbackup(
         service="borgbackup.timer",
         running=True,
         enabled=True,
-        daemon_reload=reconcile_timer_file.changed,
+        daemon_reload=backup_timer_file.changed,
     )
