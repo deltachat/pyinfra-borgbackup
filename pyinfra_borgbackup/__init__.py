@@ -62,9 +62,7 @@ def deploy_borgbackup(
     if borg_repo.startswith("hetzner-backup:"):
         files.put(
             name="create SSH config",
-            src=importlib.resources.files(__package__)
-            .joinpath("dot_ssh", "config")
-            .open("rb"),
+            src=importlib.resources.files(__package__).joinpath("dot_ssh", "config").open("rb"),
             dest="/root/.ssh/config",
             user="root",
             group="root",
@@ -119,8 +117,8 @@ def deploy_borgbackup(
         src=importlib.resources.files(__package__).joinpath("borgbackup.timer.j2"),
         dest="/etc/systemd/system/borgbackup.timer",
         mode="644",
-        minute = str(random.randint(0, 59)),
-        hour = str(random.randint(0, 4)),
+        minute=str(random.randint(0, 59)),
+        hour=str(random.randint(0, 4)),
     )
     systemd.service(
         name="Setup borgbackup timer",
