@@ -23,11 +23,21 @@ echo "$DEST1" > /dev/null
 
 export BORG_RSH='ssh -F /root/.ssh/config -o "StrictHostKeyChecking=no"'
 
+function run_borg () {
+  set +e  # don't fail if borg quits with exit code 1 (warning)
+  borg $@
+  borg_rc=$?
+  if [[ $borg_rc -gt 1 ]]; then
+    exit $borg_rc
+  fi
+  set -e
+}
+
 # check if variable exists: https://stackoverflow.com/a/11369388
 if [ "$SKIP_CHECK" = "true" ]; then
   echo "skipping borg check."
 else
-  borg check ${DEST1} &
+  run_borg check ${DEST1} &
   if [ -n "${DEST2-}" ]; then
     borg check ${DEST2} &
   fi
@@ -37,7 +47,7 @@ wait
 # stop services/containers which write data
 if [ -f /root/backup-pre.py ]; then python3 /root/backup-pre.py stop; fi
 
-borg create --stats --compression lzma ${DEST1}::'backup{now:%Y-%m-%d-%H}' {{ borg_args }} \
+run_borg create --stats --compression lzma ${DEST1}::'backup{now:%Y-%m-%d-%H}' {{ borg_args }} \
         --exclude *.cache/           \
         --exclude /dev               \
         --exclude /proc              \
@@ -56,8 +66,8 @@ echo "borgbackup_last_completed $(date +%s)" > {{ prometheus_file }}
 {%- endif %}
 start_services
 
-borg prune --keep-daily=7 --keep-weekly=4 ${DEST1}
-borg compact ${DEST1}
+run_borg prune --keep-daily=7 --keep-weekly=4 ${DEST1}
+run_borg compact ${DEST1}
 if [ -n "${DEST2-}" ]; then
   borg prune --keep-daily=7 --keep-weekly=4 ${DEST2}
   borg compact ${DEST2}
