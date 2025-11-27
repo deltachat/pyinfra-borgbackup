@@ -15,10 +15,12 @@ you first need to create an SSH key,
 and add the public key to the backup server's
 `/home/tech/.ssh/authorized_keys` file.
 To do this, run the following commands
-(replace `{host}` with the name of your host):
+(replace `host.name` with the name of your host):
 
 ```
-export HOST={host}                                      # enter the name of the host you want to backup here
+export HOST=host.name
+```
+```
 ssh-keygen -q -t ed25519 -f /tmp/$HOST-backup -C $HOST-backup -N ""
 scp hetzner-backup:.ssh/authorized_keys /tmp/hetzner-backup_authorized_keys
 echo 'command="borg serve --restrict-to-path /home/backups/'$HOST'/",restrict' $(cat /tmp/$HOST-backup.pub) >> /tmp/hetzner-backup_authorized_keys
