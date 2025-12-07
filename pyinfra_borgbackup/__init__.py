@@ -28,7 +28,7 @@ def deploy_borgbackup(
 
     secrets = [
         f"BORG_PASSPHRASE={passphrase}",
-        f"DEST1={borg_repo}",
+        f"BORG_REPO={borg_repo}",
         "SKIP_CHECK=true" if skip_check else "SKIP_CHECK=false",
     ]
     env = "\n".join(secrets)
