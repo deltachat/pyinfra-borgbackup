@@ -9,7 +9,7 @@ function start_services {
 
 trap "start_services" EXIT
 
-set -exuo pipefail
+set -euo pipefail
 
 # setup env
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -20,6 +20,8 @@ export $(xargs < /root/backup.env)
 echo "$BORG_PASSPHRASE" > /dev/null
 echo "$BORG_REPO" > /dev/null
 : "${SKIP_CHECK:='false'}"
+
+set -x
 
 export BORG_RSH='ssh -F /root/.ssh/config -o "StrictHostKeyChecking=no"'
 
