@@ -43,14 +43,20 @@ def deploy_borgbackup(
 
     # Setup SSH connection for backup job
     if not borg_initialized:
-        files.put(
-            name=f"upload private SSH key from /tmp/{host}-backup",
-            src=f"/tmp/{host}-backup",
-            dest="/root/.ssh/backupkey",
-            user="root",
-            group="root",
-            mode="600",
-        )
+        key_backup = f"/tmp/{host}-backup"
+        try:
+            files.put(
+                name=f"upload private SSH key from {key_backup}",
+                src=key_backup,
+                dest="/root/.ssh/backupkey",
+                user="root",
+                group="root",
+                mode="600",
+            )
+        except IOError as e:
+            print(f"ERROR: Could not open SSH key backup: {e}")
+            exit(1)
+
     # Only upload SSH config if it's using the delta backup server;
     # Otherwise leave it to users to upload it before
     if borg_repo.startswith("hetzner-backup:"):
