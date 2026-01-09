@@ -118,7 +118,7 @@ If you pass a prometheus path to `deploy_borgbackup` like this:
 ```
 deploy_borgbackup(
     [...]
-    prometheus_file="/var/lib/node_exporter/textfile_collector/borgbackup_finished.prom",
+    prometheus_file="/var/lib/prometheus/node-exporter/borgbackup_finished.prom",
 )
 ```
 
