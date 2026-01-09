@@ -23,7 +23,7 @@ def deploy_borgbackup(
     :param borg_args: CLI arguments passed to borg create
     :param skip_check: whether to skip `borg check` during ./backup.sh runs
     :param prometheus_file: file to write prometheus success indicators to, e.g.
-        /var/lib/node_exporter/textfile_collector/borgbackup_finished.prom
+        /var/lib/prometheus/node-exporter/borgbackup_finished.prom
     """
 
     secrets = [
