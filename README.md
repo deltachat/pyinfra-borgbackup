@@ -15,18 +15,26 @@ you first need to create an SSH key,
 and add the public key to the backup server's
 `/home/tech/.ssh/authorized_keys` file.
 To do this, run the following commands
-(replace `{host}` with the name of your host):
+(replace `host.name.tld` with the name of your host):
 
 ```
-export HOST={host}                                      # enter the name of the host you want to backup here
+export HOST=host.name.tld # enter the name of the host you want to backup here
 ssh-keygen -q -t ed25519 -f /tmp/$HOST-backup -C $HOST-backup -N ""
 scp hetzner-backup:.ssh/authorized_keys /tmp/hetzner-backup_authorized_keys
 echo 'command="borg serve --restrict-to-path /home/backups/'$HOST'/",restrict' $(cat /tmp/$HOST-backup.pub) >> /tmp/hetzner-backup_authorized_keys
 scp /tmp/hetzner-backup_authorized_keys hetzner-backup:.ssh/authorized_keys
 ```
 
+Then upload the SSH key to your server (assuming we're logging in as root)
+```
+scp /tmp/$HOST-backup $HOST/.ssh/backupkey
+scp /tmp/$HOST-backup.pub $HOST/.ssh/backupkey.pub
+```
+
 Now you need to generate a passphrase for the borg repository
-with `pass generate -n delta/{host}/borg-passphrase`.
+with ```
+pass generate -n delta/${HOST}/borg-passphrase
+```
 This creates an alphanumeric passphrase for the repository.
 
 Then you can add this module to your pyinfra deploy.py script like this:
@@ -36,18 +44,21 @@ from pyinfra import host
 from pyinfra.facts.files import File
 from pyinfra_borgbackup import deploy_borgbackup
 
-host_name = "host"
-borg_repo = f"hetzner-backup:backups/{host_name}"
+host_name = "host.name.tld"
+borg_repo = f"hetzner-backup:backups/host.name.tld"
 borg_passphrase = "s3cr3t"
 borg_initialized = host.get_fact(File, "/root/.ssh/backupkey")
 deploy_borgbackup(host_name, borg_passphrase, borg_repo, borg_initialized)
 ```
 
-After it has been deployed,
-you should login to your host via SSH
-and run `/root/backup.sh` manually at least once,
-to create an initial backup
-and directly spot possible mistakes.
+After it has been deployed, you should login to your host via SSH.
+Then, create the repository and create an initial backup and to directly spot possible mistakes.
+```
+sudo -i
+set -o allexport; source backup.env; set +o allexport
+borg init --encryption=repokey $DEST1
+./backup.sh
+```
 
 ### Use Your Own Backup Server
 
