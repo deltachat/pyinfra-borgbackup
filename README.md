@@ -56,7 +56,7 @@ Then, create the repository and create an initial backup and to directly spot po
 ```
 sudo -i
 set -o allexport; source backup.env; set +o allexport
-borg init --encryption=repokey $DEST1
+borg init --encryption=repokey
 ./backup.sh
 ```
 
