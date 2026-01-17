@@ -3,8 +3,6 @@
 This module deploys [borgbackup](https://www.borgbackup.org/),
 sets up a backup.sh script,
 and a cron job which executes it nightly.
-Admins need to generate a passphrase
-and store it in our [pass repository](https://git.0x90.space/delta/pass).
 
 ## Usage
 
