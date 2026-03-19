@@ -13,6 +13,7 @@ def deploy_borgbackup(
     borg_args: str = "/",
     skip_check: bool = False,
     prometheus_file: str | None = None,
+    **pyinfra_args,
 ):
     """Deploy borgbackup.
 
@@ -39,6 +40,7 @@ def deploy_borgbackup(
         user="root",
         group="root",
         mode="700",
+        **pyinfra_args,
     )
 
     # Setup SSH connection for backup job
@@ -52,6 +54,7 @@ def deploy_borgbackup(
                 user="root",
                 group="root",
                 mode="600",
+                **pyinfra_args,
             )
         except IOError as e:
             print(f"ERROR: Could not open SSH key backup: {e}")
@@ -67,11 +70,13 @@ def deploy_borgbackup(
             user="root",
             group="root",
             mode="600",
+            **pyinfra_args,
         )
 
     apt.packages(
         name="Install borgbackup",
         packages=["borgbackup"],
+        **pyinfra_args,
     )
     # :todo consider requiring a specific borg version?
 
@@ -84,6 +89,7 @@ def deploy_borgbackup(
         mode="700",
         borg_args=borg_args,
         prometheus_file=prometheus_file,
+        **pyinfra_args,
     )
 
     if not borg_initialized:
@@ -92,18 +98,21 @@ def deploy_borgbackup(
             commands=[
                 "export $(xargs < /root/backup.env) && export BORG_RSH='ssh -F /root/.ssh/config -o \"StrictHostKeyChecking=no\"' && borg init --encryption=repokey $DEST1"
             ],
+            **pyinfra_args,
         )
 
     files.file(
         name="Remove old backup cronjob, replaced by systemd timer",
         path="/etc/cron.d/borgbackup",
         present=False,
+        **pyinfra_args,
     )
 
     backup_service_file = files.put(
         src=importlib.resources.files(__package__).joinpath("borgbackup.service"),
         dest="/etc/systemd/system/borgbackup.service",
         mode="644",
+        **pyinfra_args,
     )
     systemd.service(
         name="Setup borgbackup service",
@@ -111,6 +120,7 @@ def deploy_borgbackup(
         running=False,
         enabled=False,
         daemon_reload=backup_service_file.changed,
+        **pyinfra_args,
     )
 
     backup_timer_file = files.template(
@@ -119,6 +129,7 @@ def deploy_borgbackup(
         mode="644",
         minute=f"{random.randint(0, 59):02d}",
         hour=f"{random.randint(0, 4):02d}",
+        **pyinfra_args,
     )
     systemd.service(
         name="Setup borgbackup timer",
@@ -126,4 +137,5 @@ def deploy_borgbackup(
         running=True,
         enabled=True,
         daemon_reload=backup_timer_file.changed,
+        **pyinfra_args,
     )
