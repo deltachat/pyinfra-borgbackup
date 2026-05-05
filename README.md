@@ -29,10 +29,12 @@ scp /tmp/$HOST-backup $HOST/.ssh/backupkey
 scp /tmp/$HOST-backup.pub $HOST/.ssh/backupkey.pub
 ```
 
-Now you need to generate a passphrase for the borg repository
-with ```
+Now you need to generate a passphrase for the borg repository with
+
+```
 pass generate -n delta/${HOST}/borg-passphrase
 ```
+
 This creates an alphanumeric passphrase for the repository.
 
 Then you can add this module to your pyinfra deploy.py script like this:
