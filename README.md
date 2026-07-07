@@ -25,8 +25,8 @@ scp /tmp/hetzner-backup_authorized_keys hetzner-backup:.ssh/authorized_keys
 
 Then upload the SSH key to your server (assuming we're logging in as root)
 ```
-scp /tmp/$HOST-backup $HOST/.ssh/backupkey
-scp /tmp/$HOST-backup.pub $HOST/.ssh/backupkey.pub
+scp /tmp/$HOST-backup $HOST:.ssh/backupkey
+scp /tmp/$HOST-backup.pub $HOST:.ssh/backupkey.pub
 ```
 
 Now you need to generate a passphrase for the borg repository with
