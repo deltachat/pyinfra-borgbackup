@@ -1,8 +1,18 @@
 import importlib.resources
 import random
+import subprocess
+import sys
 from io import StringIO
 
 from pyinfra.operations import apt, files, server, systemd
+
+
+def _pass_repo_url() -> str | None:
+    try:
+        r = subprocess.run(["pass", "git", "remote", "get-url", "origin"], capture_output=True, text=True, check=False)
+        return r.stdout.strip() if r.returncode == 0 else None
+    except FileNotFoundError:
+        return None
 
 
 def deploy_borgbackup(
@@ -26,6 +36,13 @@ def deploy_borgbackup(
     :param prometheus_file: file to write prometheus success indicators to, e.g.
         /var/lib/prometheus/node-exporter/borgbackup_finished.prom
     """
+    if not passphrase:
+        msg = "Empty borg passphrase"
+        if hint := _pass_repo_url():
+            msg += f" - pull the latest secrets from {hint}"
+        else:
+            msg += " - is your pass store initialized and cloned from a remote?"
+        raise ValueError(msg)
 
     secrets = [
         f"BORG_PASSPHRASE={passphrase}",
@@ -56,9 +73,9 @@ def deploy_borgbackup(
                 mode="600",
                 **pyinfra_args,
             )
-        except IOError as e:
+        except OSError as e:
             print(f"ERROR: Could not open SSH key backup: {e}")
-            exit(1)
+            sys.exit(1)
 
     # Only upload SSH config if it's using the delta backup server;
     # Otherwise leave it to users to upload it before
