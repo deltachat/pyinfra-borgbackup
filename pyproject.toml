@@ -5,3 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pyinfra-borgbackup"
 version = "0.1"
+
+[tool.ruff.lint.per-file-ignores]
+# deployed standalone, never imported as a module
+"pyinfra_borgbackup/backup-pre.py" = ["N999"]

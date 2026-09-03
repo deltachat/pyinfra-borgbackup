@@ -23,10 +23,10 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-for user in services:
+for user, service in services.items():
     if user == "root":
-        returncode = cmd(f"systemctl {args.command} {services[user]}")
+        returncode = cmd(f"systemctl {args.command} {service}")
     else:
-        returncode = cmd(f"su -l {user} -c 'systemctl --user {args.command} {services[user]}'")
+        returncode = cmd(f"su -l {user} -c 'systemctl --user {args.command} {service}'")
     if returncode != 0:
-        print(f"WARNING: Failed to {args.command} {services[user]} as {user} user")
+        print(f"WARNING: Failed to {args.command} {service} as {user} user")
