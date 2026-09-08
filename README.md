@@ -40,6 +40,8 @@ This creates an alphanumeric passphrase for the repository.
 Then you can add this module to your pyinfra deploy.py script like this:
 
 ```python
+from io import StringIO
+
 from pyinfra import host
 from pyinfra.facts.files import File
 from pyinfra_borgbackup import deploy_borgbackup
@@ -48,7 +50,8 @@ host_name = "host.name.tld"
 borg_repo = f"hetzner-backup:backups/host.name.tld"
 borg_passphrase = "s3cr3t"
 borg_initialized = host.get_fact(File, "/root/.ssh/backupkey")
-deploy_borgbackup(host_name, borg_passphrase, borg_repo, borg_initialized)
+ssh_config = StringIO("Host hetzner-backup\n\tHostname your-storage-box\n\tUser your-user\n\tIdentityFile /root/.ssh/backupkey\n")
+deploy_borgbackup(host_name, borg_passphrase, borg_repo, borg_initialized, ssh_config=ssh_config)
 ```
 
 After it has been deployed, you should login to your host via SSH.
@@ -60,29 +63,12 @@ borg init --encryption=repokey
 ./backup.sh
 ```
 
-### Use Your Own Backup Server
+### SSH Config For Your Backup Server
 
-If you are not part of the deltachat admin team,
-you can not use the default backup server of this module.
-In this case, you need to upload the `/root/.ssh/config` file separately,
-e.g. in your deploy.py file.
-
-You can take a look at our [`/root/.ssh/config`](https://github.com/deltachat/pyinfra-borgbackup/blob/main/pyinfra_borgbackup/dot_ssh/config) file
-and adjust it to your needs.
-To upload it during your deploy.py execution,
-add somewhere *above* the `deploy_borgbackup()` function call
-in your deploy.py file:
-
-```
-files.put(
-    name="create SSH config",
-    src="path/to/the/local/ssh/config",
-    dest="/root/.ssh/config",
-    user="root",
-    group="root",
-    mode="600",
-)
-```
+`deploy_borgbackup()` does not ship a default SSH config;
+pass your own via the `ssh_config` argument (a `StringIO` or file-like object,
+see example above), and it gets uploaded to `/root/.ssh/config`.
+Leave it out if your host already has the required SSH config some other way.
 
 ### Stop Services During the Backup
 
