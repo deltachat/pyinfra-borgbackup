@@ -23,6 +23,7 @@ def deploy_borgbackup(
     borg_args: str = "/",
     skip_check: bool = False,
     prometheus_file: str | None = None,
+    ssh_config: StringIO | None = None,
     **pyinfra_args,
 ):
     """Deploy borgbackup.
@@ -35,6 +36,7 @@ def deploy_borgbackup(
     :param skip_check: whether to skip `borg check` during ./backup.sh runs
     :param prometheus_file: file to write prometheus success indicators to, e.g.
         /var/lib/prometheus/node-exporter/borgbackup_finished.prom
+    :param ssh_config: SSH client config to upload to /root/.ssh/config
     """
     if not passphrase:
         msg = "Empty borg passphrase"
@@ -77,12 +79,10 @@ def deploy_borgbackup(
             print(f"ERROR: Could not open SSH key backup: {e}")
             sys.exit(1)
 
-    # Only upload SSH config if it's using the delta backup server;
-    # Otherwise leave it to users to upload it before
-    if borg_repo.startswith("hetzner-backup:"):
+    if ssh_config is not None:
         files.put(
             name="create SSH config",
-            src=importlib.resources.files(__package__).joinpath("dot_ssh", "config").open("rb"),
+            src=ssh_config,
             dest="/root/.ssh/config",
             user="root",
             group="root",
