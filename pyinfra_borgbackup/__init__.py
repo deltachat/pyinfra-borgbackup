@@ -1,18 +1,9 @@
 import importlib.resources
 import random
-import subprocess
 import sys
 from io import StringIO
 
 from pyinfra.operations import apt, files, server, systemd
-
-
-def _pass_repo_url() -> str | None:
-    try:
-        r = subprocess.run(["pass", "git", "remote", "get-url", "origin"], capture_output=True, text=True, check=False)
-        return r.stdout.strip() if r.returncode == 0 else None
-    except FileNotFoundError:
-        return None
 
 
 def deploy_borgbackup(
@@ -24,6 +15,7 @@ def deploy_borgbackup(
     skip_check: bool = False,
     prometheus_file: str | None = None,
     ssh_config: StringIO | None = None,
+    secrets_hint: str | None = None,
     **pyinfra_args,
 ):
     """Deploy borgbackup.
@@ -34,16 +26,16 @@ def deploy_borgbackup(
     :param borg_initialized: whether borg repository was already initialized
     :param borg_args: CLI arguments passed to borg create
     :param skip_check: whether to skip `borg check` during ./backup.sh runs
-    :param prometheus_file: file to write prometheus success indicators to, e.g.
+    :param prometheus_file: file to write prometheus success indicators to, e.g.,
         /var/lib/prometheus/node-exporter/borgbackup_finished.prom
     :param ssh_config: SSH client config to upload to /root/.ssh/config
+    :param secrets_hint: shown in the error if passphrase is empty, e.g., a URL
+        pointing at where to pull secrets from.
     """
     if not passphrase:
         msg = "Empty borg passphrase"
-        if hint := _pass_repo_url():
-            msg += f" - pull the latest secrets from {hint}"
-        else:
-            msg += " - is your pass store initialized and cloned from a remote?"
+        if secrets_hint:
+            msg += f" - pull the latest secrets from {secrets_hint}"
         raise ValueError(msg)
 
     secrets = [
