@@ -50,7 +50,9 @@ host_name = "host.name.tld"
 borg_repo = f"hetzner-backup:backups/host.name.tld"
 borg_passphrase = "s3cr3t"
 borg_initialized = host.get_fact(File, "/root/.ssh/backupkey")
-ssh_config = StringIO("Host hetzner-backup\n\tHostname your-storage-box\n\tUser your-user\n\tIdentityFile /root/.ssh/backupkey\n")
+ssh_config = StringIO(
+    "Host hetzner-backup\n\tHostname your-storage-box\n\tUser your-user\n\tIdentityFile /root/.ssh/backupkey\n"
+)
 deploy_borgbackup(host_name, borg_passphrase, borg_repo, borg_initialized, ssh_config=ssh_config)
 ```
 
