@@ -1,5 +1,6 @@
 import importlib.resources
 import random
+import sys
 from io import StringIO
 
 from pyinfra.operations import apt, files, server, systemd
@@ -56,16 +57,18 @@ def deploy_borgbackup(
                 mode="600",
                 **pyinfra_args,
             )
-        except IOError as e:
+        except OSError as e:
             print(f"ERROR: Could not open SSH key backup: {e}")
-            exit(1)
+            sys.exit(1)
 
     # Only upload SSH config if it's using the delta backup server;
     # Otherwise leave it to users to upload it before
     if borg_repo.startswith("hetzner-backup:"):
         files.put(
             name="create SSH config",
-            src=importlib.resources.files(__package__).joinpath("dot_ssh", "config").open("rb"),
+            src=importlib.resources.files(__package__)
+            .joinpath("dot_ssh", "config")
+            .open("rb"),
             dest="/root/.ssh/config",
             user="root",
             group="root",
