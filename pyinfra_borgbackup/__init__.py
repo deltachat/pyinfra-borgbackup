@@ -12,6 +12,8 @@ def deploy_borgbackup(
     borg_repo: str,
     borg_initialized: bool,
     borg_args: str = "/",
+    hour: int = random.randint(0, 4),
+    minute: int = random.randint(0, 59),
     skip_check: bool = False,
     prometheus_file: str | None = None,
     ssh_config: StringIO | None = None,
@@ -25,6 +27,8 @@ def deploy_borgbackup(
     :param borg_repo: the address of the borg repository
     :param borg_initialized: whether borg repository was already initialized
     :param borg_args: CLI arguments passed to borg create
+    :param hour: the hour when the backup job starts, random between 0 and 4 by default
+    :param minute: the minute when the backup job starts, random by default
     :param skip_check: whether to skip `borg check` during ./backup.sh runs
     :param prometheus_file: file to write prometheus success indicators to, e.g.,
         /var/lib/prometheus/node-exporter/borgbackup_finished.prom
@@ -136,8 +140,8 @@ def deploy_borgbackup(
         src=importlib.resources.files(__package__).joinpath("borgbackup.timer.j2"),
         dest="/etc/systemd/system/borgbackup.timer",
         mode="644",
-        minute=f"{random.randint(0, 59):02d}",
-        hour=f"{random.randint(0, 4):02d}",
+        hour=f"{hour:02d}",
+        minute=f"{minute:02d}",
         **pyinfra_args,
     )
     systemd.service(
