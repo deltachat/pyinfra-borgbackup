@@ -39,7 +39,7 @@ def deploy_borgbackup(
         raise ValueError(msg)
 
     secrets = [
-        f"BORG_PASSPHRASE={passphrase}",
+        f"BORG_PASSPHRASE='{passphrase}'",
         f"BORG_REPO={borg_repo}",
         "SKIP_CHECK=true" if skip_check else "SKIP_CHECK=false",
     ]
